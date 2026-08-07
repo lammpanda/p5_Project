@@ -2,19 +2,15 @@ let randomCounts = [];
 let total = 20;
 
 function setup() {
-  createCanvas(400, 400);
+  createCanvas(800, 800);
   for(let i = 0; i < total; i++){
     randomCounts[i] = 0;
   }
 }
 function draw() {
-  background(255);
-  let index = floor(random(randomCounts.length));
-  randomCounts[index]++;
-  stroke(0);
-  fill(127);
-  let w = width / randomCounts.length;
-  for (let x = 0; x < randomCounts.length; x++) {
-    rect(x * w, height - randomCounts[x], w - 1, randomCounts[x]);
-  }
+  //{!1} A normal distribution with mean 320 and standard deviation 60
+  let x = randomGaussian(320, 60);
+  noStroke();
+  fill(0, 10);
+  circle(x, 120, 16);
 }
