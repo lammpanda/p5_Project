@@ -6,6 +6,7 @@ class Mover{
     this.mass = mass;
     this.position = createVector(x, y);
     this.topspeed = 100;
+    this.radius = this.mass * 8;
   }
 
   applyForce(force){
@@ -39,25 +40,25 @@ class Mover{
   show(){ // display the mover
     stroke(0);
     fill(175);
-    circle(this.position.x, this.position.y, this.mass*16); 
+    circle(this.position.x, this.position.y, this.radius * 2); 
   }
 
   checkEdges(){ // check if the mover is outside the canvas
-    if(this.position.x > width){ // if the mover is outside then set position to 
-      this.position.x = width; //the edge and reverse the velocity right
+    if(this.position.x > width-this.radius){ // if the mover is outside then set position to 
+      this.position.x = width-this.radius; //the edge and reverse the velocity right
       this.velocity.x *= -1;
     }
-    else if(this.position.x < 0){ // same but for the left edge
+    else if(this.position.x < this.radius){ // same but for the left edge
       this.velocity.x *= -1;
-      this.position.x = 0;
+      this.position.x = this.radius;
     }
-    if(this.position.y > height){ // same but for the bottom edge
+    if(this.position.y > height-this.radius){ // same but for the bottom edge
       this.velocity.y *= -1;
-      this.position.y = height;
+      this.position.y = height-this.radius;
     }
-    else if(this.position.y < 0){ // same but for the top edge
+    else if(this.position.y < this.radius){ // same but for the top edge
       this.velocity.y *= -1;
-      this.position.y = 0;
+      this.position.y = this.radius;
     }
   }
 
@@ -65,8 +66,8 @@ class Mover{
     let maxdist = 100;
     let pushPower = 0.25; // Controls strength of the return push
 
-    if (this.position.x > width - maxdist) { // RIGHT WALL
-      let distance = width - this.position.x;
+    if (this.position.x > width - maxdist - this.radius) { // RIGHT WALL
+      let distance = width - this.position.x - this.radius;
       
       // Ramp from 0 (at 100px away) up to pushPower (at 0px away)
       // map(value, startMin, startMax, endMin, endMax)
@@ -83,9 +84,10 @@ class Mover{
       }
     }
 
-    if (this.position.x < maxdist) { // LEFT WALL
-      let push = map(this.position.x, maxdist, 0, 0, pushPower);
-      
+    if (this.position.x < maxdist + this.radius) { // LEFT WALL
+      let distance = this.position.x - this.radius;
+      let push = map(distance, maxdist, 0, 0, pushPower);
+
       // Smooth repulsive force pushing RIGHT
       let repulsion = createVector(push * this.mass, 0);
       this.applyForce(repulsion);
