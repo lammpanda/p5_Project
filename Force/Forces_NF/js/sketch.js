@@ -115,7 +115,10 @@ class Mover{
     background(255);
     drawCanvasGuides();
 
-    let gravity = createVector(0, .98);
+    let gravity = createVector(0, 0.98);
+    gravityA = p5.Vector.mult(gravity, moverA.mass);
+    gravityB = p5.Vector.mult(gravity, moverB.mass);
+
 
     
     if(mouseIsPressed){
@@ -126,14 +129,14 @@ class Mover{
       moverB.applyForce(windB);
     }
 
-    moverA.applyForce(gravity);
+    moverA.applyForce(gravityA);
     
     moverA.EdgeForce();
     moverA.update();
     moverA.checkEdges();
     moverA.show();
 
-    moverB.applyForce(gravity);
+    moverB.applyForce(gravityB);
     moverB.EdgeForce();
     moverB.update();
     moverB.checkEdges();
