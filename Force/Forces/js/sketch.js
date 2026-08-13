@@ -1,4 +1,5 @@
 class Mover{
+
   constructor(x, y, mass){ // takes in 3 parameters, x and y position, and mass
     this.velocity = createVector(0,0); 
     this.acceleration = createVector(0,0);
@@ -6,22 +7,41 @@ class Mover{
     this.position = createVector(x, y);
     this.topspeed = 100;
   }
+
   applyForce(force){
     let f = p5.Vector.div(force, this.mass); // F = Ma => a = F/m
 
     this.acceleration.add(f); // add a to acceleration
+    
   }
+
+  windForce(){
+    let mouse = createVector(mouseX, mouseY);
+    let dir = p5.Vector.sub(this.position, mouse);
+    let distance = dir.mag();
+    let maxDistance = 200;
+    if (distance > 0 && distance < maxDistance) {
+      dir.normalize();
+      let strength = map(distance, 0, maxDistance, 2, 0);
+      dir.mult(strength);
+      return dir;
+    }
+    return createVector(0, 0);
+  }
+
   update(){
     this.velocity.add(this.acceleration);
     this.position.add(this.velocity);
     this.acceleration.mult(0); // reset acceleration to 0 each frame
     //this.velocity.x *= .98; // slight air resistance, prevents oscillations
   }
+
   show(){ // display the mover
     stroke(0);
     fill(175);
     circle(this.position.x, this.position.y, this.mass*16); 
   }
+
   checkEdges(){ // check if the mover is outside the canvas
     if(this.position.x > width){ // if the mover is outside then set position to 
       this.position.x = width; //the edge and reverse the velocity right
@@ -31,11 +51,16 @@ class Mover{
       this.velocity.x *= -1;
       this.position.x = 0;
     }
-    if(this.position.y > height){ // same but for the top edge
+    if(this.position.y > height){ // same but for the bottom edge
       this.velocity.y *= -1;
       this.position.y = height;
     }
+    else if(this.position.y < 0){ // same but for the top edge
+      this.velocity.y *= -1;
+      this.position.y = 0;
+    }
   }
+
   EdgeForce(){
     let maxdist = 100;
     let pushPower = 0.25; // Controls strength of the return push
@@ -89,11 +114,14 @@ class Mover{
     drawCanvasGuides();
 
     let gravity = createVector(0, .98);
+
     
     if(mouseIsPressed){
-      let wind = createVector(1, 0);
-      moverA.applyForce(wind);
-      moverB.applyForce(wind);
+      let windA = moverA.windForce();
+      let windB = moverB.windForce();
+
+      moverA.applyForce(windA);
+      moverB.applyForce(windB);
     }
 
     moverA.applyForce(gravity);
