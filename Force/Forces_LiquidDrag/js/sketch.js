@@ -48,3 +48,67 @@ class Mover{
     }
   }
 }
+class Liquid {
+  constructor(x,y,w,h,c){
+    this.x = x;
+    this.y = y;
+    this.w = w;
+    this.h = h;
+    this.c = c;
+  }
+  show(){
+    noStroke();
+    fill(175);
+    rect(this.x, this.y, this.w, this.h);
+  }
+  contains(mover){
+    let pos = mover.position;
+    return(pos.x > this.x && pos.x < this.x + this.w && 
+      pos.y > this.y && pos.y < this.y + this.h);
+  }
+  DragCalculate(mover){
+  
+  let speed = mover.velocity.mag();
+  if(speed === 0) return createVector(0,0);
+  // Calculate the force’s magnitude.
+  let dragMagnitude = this.c * speed * speed;
+  // Calculate the force’s direction.
+  let dragForce = mover.velocity.copy();
+  dragForce.mult(-1);
+  // Finalize the force: set the magnitude and direction together.
+  dragForce.setMag(dragMagnitude);
+  // Return the force.
+  return dragForce;
+  }
+}
+
+
+let liquid;
+let movers = []
+
+function setup(){
+  createCanvas(640, 360);
+  for(let i = 0; i < 9; i++){
+    let mass = random(1,3);
+    movers[i] = new Mover(40+i*70,0,mass);
+  }
+  liquid = new Liquid(0, height/2, width, height/2, 0.1);
+}
+
+function draw(){
+  background(255);
+
+  liquid.show();
+  for(let i = 0; i < movers.length; i++){
+    if(liquid.contains(movers[i])){
+      let dragForce = liquid.DragCalculate(movers[i]);
+      movers[i].applyForce(dragForce);
+    }
+    let gravity = createVector(0,0.1*movers[i].mass);
+    movers[i].applyForce(gravity);
+    movers[i].update();
+    movers[i].show();
+    movers[i].checkEdges();
+  }
+
+}
