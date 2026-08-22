@@ -40,7 +40,7 @@ class Spaceship {
   show() {
     stroke(0);
     strokeWeight(2);
-    fill(255, 100);
+    fill(0);
     push(); // grabs snippet of the canvas and lets moving happen
     translate(this.position.x, this.position.y); // sets the origin to the coordinates
     rotate(this.angle); // Rotates triangle shape to match this.angle
@@ -64,15 +64,73 @@ class Spaceship {
   }
 }
 
+class Particle {
+  constructor(x,y) {
+    this.position =  createVector(x, y);
+    //{!1} For demonstration purposes, the particle has a random velocity.
+    this.velocity = createVector(random(-1, 1), random(0,2));
+    this.acceleration = createVector(0, 0);
+    this.lifespan = 150.0;
+  }
+
+  update() {
+    this.velocity.add(this.acceleration);
+    this.position.add(this.velocity);
+    this.lifespan -= 2.0;
+    this.acceleration.mult(0);
+  }
+
+  show() {
+    stroke(0, this.lifespan);
+    fill(60, this.lifespan);
+    circle(this.position.x, this.position.y, 8);
+  }
+
+  // Keep the same physics model as in previous chapters.
+  applyForce(force) {
+    this.acceleration.add(force);
+  }
+
+  // Is the particle alive or dead?
+  isDead() {
+    return (this.lifespan < 0.0);
+  }
+}
+
+class Emitter {
+  constructor(x,y) {
+    this.origin = createVector(x,y);
+    this.particles = [];
+  }
+
+  addParticle() {
+    this.particles.push(new Particle(this.origin.x, this.origin.y));
+  }
+
+  run() {
+    let length = this.particles.length - 1;
+    for (let i = length; i >= 0; i--) {
+      let particle = this.particles[i];
+      particle.update();
+      particle.show();
+      if (particle.isDead()) {
+        this.particles.splice(i, 1);
+      }
+    }
+  }
+}
+
 let ship;
+let shipThruster;
 
 function setup() {
   createCanvas(1440,600);
   ship = new Spaceship(width / 2, height / 2, 5); // ship spawns at middle and mass of 5
+  shipThruster = new Emitter(ship.position.x,ship.position.y);
 }
 
 function draw() {
-  background(60);
+  background(255);
   
   if (keyIsDown(LEFT_ARROW)) {
     ship.turn(-0.05); // Rotates left
@@ -82,9 +140,16 @@ function draw() {
   }
   if (keyIsDown(UP_ARROW)) {  // Spacebar
     ship.thrust();
+    shipThruster.addParticle();
   }
 
   ship.update();
   ship.edges();
+  
+
+  shipThruster.origin.set(ship.position.x,ship.position.y);
+
+  shipThruster.run();
   ship.show();
+  
 }
