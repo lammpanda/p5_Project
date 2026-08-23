@@ -95,6 +95,14 @@ class Emitter {
       particle.applyForce(force);
     }
   }
+
+  applyRepeller(repeller){
+    for(let particle of this.particles){
+      let force = repeller.repel(particle);
+      particle.applyForce(force);
+    }
+  }
+  
   run(){
     for( let i = this.particles.length - 1; i >= 0; i--){
       let particle = this.particles[i];
@@ -106,16 +114,45 @@ class Emitter {
     }
   }
 }
+class Repeller {
+  constructor(x,y){
+    this.position = createVector(x,y);
+    this.power = 150;
+  }
+  repel(particle){
+    let fdir = p5.Vector.sub(this.position, particle.position);
+    let distance = fdir.mag();
+    distance = constrain(distance, 10, 50);
+    let strength = -1 * this.power / (distance ** 2);
+    fdir.setMag(strength);
+    return fdir;
+  }
+
+  show(){
+    stroke(0);
+    fill(127);
+    circle(this.position.x, this.position.y, 32);
+  }
+  
+}
 
 let emitter;
+let repeller;
+
 function setup(){
-  createCanvas(640,240);
+  createCanvas(1080, 720);
   emitter = new Emitter(width/2, 20);
+  repeller = new Repeller(width/2, 150);
 }
 function draw(){
   background(255);
+  emitter.addParticle();
+
   let gravity = createVector(0,0.1);
   emitter.applyForce(gravity);
-  emitter.addParticle();
+
+  emitter.applyRepeller(repeller);
+  
   emitter.run();
+  repeller.show();
 }
